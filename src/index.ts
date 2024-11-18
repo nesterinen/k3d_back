@@ -17,9 +17,9 @@ app.use('/api/v1', apiV1)
 import ignoreFavicon from './middleware/favicon'
 app.use(ignoreFavicon)
 
-import { config } from './utils/config'
-app.listen(config.port, () => {
-  console.log(`Server running on http://localhost:${config.port}`)
+import { port } from './utils/config'
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`)
 })
 
 export { app }

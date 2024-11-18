@@ -6,6 +6,6 @@ POST http://localhost:3001/api/v1/korkeusmalli2m
 content-type: application/json
 
 {
-    "latitude": 1,
-    "longitude": 1
+    "latitude": 62.60991053905554, 
+    "longitude": 29.789833160383374
 }
