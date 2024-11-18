@@ -1,0 +1,37 @@
+{
+  "name": "k3d_back",
+  "version": "0.0.1",
+  "description": "Backend for kartta3d project.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "rimraf ./build && tsc",
+    "start": "npm run build && node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nesterinen/k3d_back.git"
+  },
+  "author": "Aleksei Nesterinen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nesterinen/k3d_back/issues"
+  },
+  "homepage": "https://github.com/nesterinen/k3d_back#readme",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "proj4": "^2.14.0"
+  },
+  "devDependencies": {
+    "@types/axios": "^0.14.4",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/proj4": "^2.5.5",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}
