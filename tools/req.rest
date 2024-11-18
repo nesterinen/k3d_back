@@ -1,0 +1,11 @@
+###
+GET http://localhost:3001/api/v1/korkeusmalli2m
+
+### asd
+POST http://localhost:3001/api/v1/korkeusmalli2m
+content-type: application/json
+
+{
+    "latitude": 1,
+    "longitude": 1
+}
