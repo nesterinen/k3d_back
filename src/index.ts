@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 //For env File 
 dotenv.config();
 
+const a = 2
+
 const app: Application = express();
 const port = process.env.PORT || 8000;
 
