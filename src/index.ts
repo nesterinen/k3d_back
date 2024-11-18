@@ -1,18 +1,18 @@
-import express, { Express, Request, Response, Application } from 'express';
-import dotenv from 'dotenv';
+import express, { Application } from 'express'
+const app: Application = express()
 
-//For env File 
-dotenv.config();
+import cors from 'cors'
+app.use(cors())
 
-const app: Application = express();
-const port = process.env.PORT || 8000;
+import morgan from 'morgan'
+app.use(morgan('tiny'))
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Welcome to Express & TypeScript Server');
-});
+import mainPage from './controllers/mainPage'
+app.use('/', mainPage)
 
-app.listen(port, () => {
-  console.log(`Server is Fire at http://localhost:${port}`);
-});
+import { config } from './utils/config'
+app.listen(config.port, () => {
+  console.log(`Server running on http://localhost:${config.port}`)
+})
 
 export { app }
