@@ -3,6 +3,7 @@ import { api_key } from '../utils/config'
 import { ApiProcessResponse, ApiResultsResponse } from './apiProcessTypes'
 
 const baseUrl = 'https://avoin-paikkatieto.maanmittauslaitos.fi/tiedostopalvelu/ogcproc/v1/'
+// https://www.maanmittauslaitos.fi/paikkatiedon-tiedostopalvelu/tekninen-kuvaus
 
 const startProcess = async (url: string, api_key: string, request_json: any): Promise<ApiProcessResponse> => {
     const response = axios.post(
@@ -11,10 +12,11 @@ const startProcess = async (url: string, api_key: string, request_json: any): Pr
         { auth: { username: api_key, password: '' } }
     )
 
-    return response.then(response => {return response.data})
+    return response.then(response => { return response.data })
 }
 
-const processPolling = async (url: string, api_key: string, retries = 15, timeout = 1500): Promise<ApiProcessResponse>  => {
+
+const processPolling = async (url: string, api_key: string, retries = 15, timeout = 1500): Promise<ApiProcessResponse> => {
     function wait(ms: number) {
         return new Promise(res => setTimeout(res, ms));
     }
@@ -39,7 +41,7 @@ const processPolling = async (url: string, api_key: string, retries = 15, timeou
             retries--
         }
 
-        reject(`Request failed after ${retries} retries`)
+        reject(`Request timeout after ${retries} retries`)
     })
 }
 
@@ -50,7 +52,7 @@ const processResults = async (url: string, api_key: string): Promise<ApiResultsR
         { auth: { username: api_key, password: '' } }
     )
 
-    return response.then(response => {return response.data})
+    return response.then(response => { return response.data })
 }
 
 
@@ -58,7 +60,7 @@ const apiProcess = async (url: string, api_key: string, request_json: any, retri
     const apiProcessUrl = await startProcess(url, api_key, request_json)
         .then(data => { return data.links[0].href })
         .catch(error => { throw error.message })
-      
+
     const apiPollingResultUrl = await processPolling(apiProcessUrl, api_key, retries)
         .then(data => { return data.links[0].href })
         .catch(error => { throw error.message })
@@ -71,14 +73,48 @@ const apiProcess = async (url: string, api_key: string, request_json: any, retri
 }
 
 
-export const apiElevationTif= async (bbox: number[], retries=15) => {
+export const apiElevationTif = async (bbox: number[], retries = 15) => {
     const processUrl = baseUrl + "processes/korkeusmalli_2m_bbox/execution"
+    // https://avoin-paikkatieto.maanmittauslaitos.fi/tiedostopalvelu/ogcproc/v1/processes/korkeusmalli_2m_bbox
 
     const request_json = {
         id: "korkeusmalli_2m_bbox",
         inputs: {
             boundingBoxInput: bbox,
             fileFormatInput: "TIFF"
+        }
+    }
+
+    return await apiProcess(processUrl, api_key, request_json, retries)
+}
+
+
+export const apiGeodeticGPKG = async (bbox: number[], retries = 15) => {
+    const processUrl = baseUrl + "processes/kiintopisteet_bbox/execution"
+    // https://avoin-paikkatieto.maanmittauslaitos.fi/tiedostopalvelu/ogcproc/v1/processes/kiintopisteet_bbox
+
+    const request_json = {
+        id: "kiintopisteet_bbox",
+        inputs: {
+            boundingBoxInput: bbox,
+            fileFormatInput: "GPKG"
+        }
+    }
+
+    return await apiProcess(processUrl, api_key, request_json, retries)
+}
+
+
+export const apiGeoInfo = async (bbox: number[], themeInput: string, retries = 15) => {
+    const processUrl = baseUrl + "processes/maastotietokanta_bbox/execution"
+    // https://avoin-paikkatieto.maanmittauslaitos.fi/tiedostopalvelu/ogcproc/v1/processes/maastotietokanta_bbox
+
+    const request_json = {
+        id: "maastotietokanta_bbox",
+        inputs: {
+            boundingBoxInput: bbox,
+            themeInput,
+            fileFormatInput: "GPKG"
         }
     }
 
