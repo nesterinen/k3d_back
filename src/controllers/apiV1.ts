@@ -1,17 +1,23 @@
-import { Request, Response, Router, NextFunction } from 'express'
+import { Request, Response, Router } from 'express'
 import { WGS84toETRS89, bboxFromETRS89 } from '../utils/projections'
 import { apiElevationTif, apiGeodeticGPKG, apiGeoInfo } from '../requests/apiProcess'
 import downloadTif from '../utils/downloadTif'
 
 import Joi from 'joi'
-const requestSchema = Joi.object({
+interface requestSchemaProps{
+    latitude: number,
+    longitude: number,
+    size: number,
+    themeInput: string
+}
+const requestSchema = Joi.object<requestSchemaProps>({
     latitude: Joi.number().min(-90).max(90).required(),
     longitude: Joi.number().min(-180).max(180).required(),
     size: Joi.number().min(500).max(5000),
 })
 
 
-const apiBoundingBox = async (req: Request, res: Response, schema: Joi.ObjectSchema<any>) => {
+const apiBoundingBox = async (req: Request, res: Response, schema: Joi.ObjectSchema<requestSchemaProps>) => {
     const validation = schema.validate(req.body)
     if (validation.error) {
         throw validation.error.details
@@ -92,19 +98,19 @@ const apiMaastoTieto = async (req: Request, res: Response) => {
 
 const apiV1 = Router()
 
-apiV1.get('/korkeusmalli2m', (req: Request, res: Response, next: NextFunction) => {
+apiV1.get('/korkeusmalli2m', (req: Request, res: Response) => {
     res.json(requestSchema.describe())
 })
 
-apiV1.post('/korkeusmalli2m', (req: Request, res: Response, next: NextFunction) => {
+apiV1.post('/korkeusmalli2m', (req: Request, res: Response) => {
     apiKorkeusMalli2m(req, res)
 })
 
-apiV1.post('/kiintopisteet', (req: Request, res: Response, next: NextFunction) => {
+apiV1.post('/kiintopisteet', (req: Request, res: Response) => {
     apiKiintopisteet(req, res)
 })
 
-apiV1.post('/maastotietokanta', (req: Request, res: Response, next: NextFunction) => {
+apiV1.post('/maastotietokanta', (req: Request, res: Response) => {
     apiMaastoTieto(req, res)
 })
 
