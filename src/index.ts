@@ -14,6 +14,9 @@ app.use('/', mainPage)
 import apiV1 from './controllers/apiV1'
 app.use('/api/v1', apiV1)
 
+import utilsV1 from './controllers/utilsV1'
+app.use('/utils/v1', utilsV1)
+
 import ignoreFavicon from './middleware/favicon'
 app.use(ignoreFavicon)
 
