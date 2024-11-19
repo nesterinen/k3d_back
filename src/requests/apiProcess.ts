@@ -1,11 +1,22 @@
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import { api_key } from '../utils/config'
 import { ApiProcessResponse, ApiResultsResponse } from './apiProcessTypes'
 
 const baseUrl = 'https://avoin-paikkatieto.maanmittauslaitos.fi/tiedostopalvelu/ogcproc/v1/'
 // https://www.maanmittauslaitos.fi/paikkatiedon-tiedostopalvelu/tekninen-kuvaus
 
-const startProcess = async (url: string, api_key: string, request_json: any): Promise<ApiProcessResponse> => {
+
+interface requestJsonType {
+    id: string,
+    inputs: {
+        boundingBoxInput: number[],
+        fileFormatInput: string,
+        themeInput?: string
+    }
+}
+
+
+const startProcess = async (url: string, api_key: string, request_json: requestJsonType): Promise<ApiProcessResponse> => {
     const response = axios.post(
         url,
         request_json,
@@ -21,27 +32,36 @@ const processPolling = async (url: string, api_key: string, retries = 15, timeou
         return new Promise(res => setTimeout(res, ms));
     }
 
-    return new Promise(async (resolve, reject) => {
-        while (retries > 0) {
-            const result: ApiProcessResponse = await axios.get(url, { auth: { username: api_key, password: '' } })
-                .then(response => { return response.data })
-                .catch(error => {
-                    retries = 0
+    function getProcess() {
+        return new Promise<AxiosResponse<ApiProcessResponse>>(resolve => {
+            const processData = axios.get<ApiProcessResponse>(url, { auth: { username: api_key, password: '' } })
+            resolve( processData )
+        })
+    }
+
+    return new Promise((resolve, reject) => {
+        function poller(){
+            getProcess()
+                .then((res) => {
+                    console.log(`status: ${res.data.status}, retries left: ${retries}`)
+                    if ( res.data.status == 'successful') resolve(res.data)
+                })
+                .then(() => {    
+                    if (retries <= 1) {
+                        reject({message: `Request timeout after ${retries} retries`})
+                    }
+                    
+                    wait(timeout).then(() => {
+                        retries--;
+                        poller()
+                    })
+                })
+                .catch((error) => {
                     reject(error)
                 })
-
-            console.log(`status: ${result.status}, retries left: ${retries}`)
-
-            if (result.status == 'successful') {
-                resolve(result)
-                return
-            }
-
-            await wait(timeout)
-            retries--
         }
 
-        reject(`Request timeout after ${retries} retries`)
+        poller()
     })
 }
 
@@ -56,7 +76,7 @@ const processResults = async (url: string, api_key: string): Promise<ApiResultsR
 }
 
 
-const apiProcess = async (url: string, api_key: string, request_json: any, retries: number) => {
+const apiProcess = async (url: string, api_key: string, request_json: requestJsonType, retries: number) => {
     const apiProcessUrl = await startProcess(url, api_key, request_json)
         .then(data => { return data.links[0].href })
         .catch(error => { throw error.message })
