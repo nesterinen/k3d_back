@@ -15,7 +15,21 @@ const requestSchema = Joi.object<requestSchemaProps>({
     longitude: Joi.number().min(-180).max(180).required(),
     size: Joi.number().min(500).max(5000),
 })
-
+const extendedSchema = requestSchema.keys({
+    themeInput: Joi.string().valid(
+        "maastotietokanta_kaikki",
+        "maasto",
+        "tieliikenne",
+        "vesiliikenne",
+        "raideliikenne",
+        "johtoverkosto",
+        "hydrografia",
+        "rakennukset",
+        "korkeussuhteet",
+        "suojelukohteet",
+        "hallinnollinen_jaotus",
+    ).required()
+})
 
 const apiBoundingBox = async (req: Request, res: Response, schema: Joi.ObjectSchema<requestSchemaProps>) => {
     const validation = schema.validate(req.body)
@@ -67,21 +81,6 @@ const apiKiintopisteet= async (req: Request, res: Response) => {
 
 
 const apiMaastoTieto = async (req: Request, res: Response) => {
-    const extendedSchema = requestSchema.keys({
-        themeInput: Joi.string().valid(
-            "maastotietokanta_kaikki",
-            "maasto",
-            "tieliikenne",
-            "vesiliikenne",
-            "raideliikenne",
-            "johtoverkosto",
-            "hydrografia",
-            "rakennukset",
-            "korkeussuhteet",
-            "suojelukohteet",
-            "hallinnollinen_jaotus",
-        ).required()
-    })
     try {
         const bbox = await apiBoundingBox(req, res, extendedSchema)
         const resultsUrl = await apiGeoInfo(bbox, req.body.themeInput, 30)
@@ -98,16 +97,52 @@ const apiMaastoTieto = async (req: Request, res: Response) => {
 
 const apiV1 = Router()
 
+apiV1.get('/', (req: Request, res: Response) => {
+    res.json({
+        paths: ['/korkeusmalli2m', '/kiintopisteet', '/maastotietokanta']
+    })
+})
+
 apiV1.get('/korkeusmalli2m', (req: Request, res: Response) => {
-    res.json(requestSchema.describe())
+    res.json({
+        inputs: requestSchema.describe(),
+        output: {
+            style: 'Digital Elevation Model',
+            fileType: '.tif',
+            'Content-Type': 'image/tiff',
+            sizeOfPixel: '2m'
+        }
+    })
 })
 
 apiV1.post('/korkeusmalli2m', (req: Request, res: Response) => {
     apiKorkeusMalli2m(req, res)
 })
 
+apiV1.get('/kiintopisteet', (req: Request, res: Response) => {
+    res.json({
+        inputs: requestSchema.describe(),
+        output: {
+            style: 'geodetic control network',
+            fileType: '.gpkg',
+            'Content-Type': 'application/x-sqlite3'
+        }
+    })
+})
+
 apiV1.post('/kiintopisteet', (req: Request, res: Response) => {
     apiKiintopisteet(req, res)
+})
+
+apiV1.get('/maastotietokanta', (req: Request, res: Response) => {
+    res.json({
+        inputs: extendedSchema.describe(),
+        output: {
+            style: 'geodetic control network',
+            fileType: '.gpkg',
+            'Content-Type': 'application/x-sqlite3'
+        }
+    })
 })
 
 apiV1.post('/maastotietokanta', (req: Request, res: Response) => {

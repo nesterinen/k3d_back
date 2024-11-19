@@ -20,8 +20,18 @@ const etrs2bboxSchema = Joi.object({
 
 const utilsV1 = Router()
 
+utilsV1.get('/', (req: Request, res: Response) => {
+    res.json({
+        paths: ['/wgs2etrs', '/etrs2wgs', '/etrs2bbox']
+    })
+})
+
 utilsV1.get('/wgs2etrs', (req: Request, res: Response) => {
-    res.send('Welcome to /wgs2etrs')
+    res.json({
+        message: 'Convert coordinates from WGS84 to ETRS89',
+        inptus: wgs2etrsSchema.describe(),
+        output: ['easting', 'northing']
+    })
 })
 
 utilsV1.post('/wgs2etrs', (req: Request, res: Response) => {
@@ -40,6 +50,14 @@ utilsV1.post('/wgs2etrs', (req: Request, res: Response) => {
     })
 })
 
+utilsV1.get('/etrs2wgs', (req: Request, res: Response) => {
+    res.json({
+        message: 'Convert coordinates from ETRS89 to WGS84',
+        inptus: etrs2wgsSchema.describe(),
+        output: ['latitude', 'longitude']
+    })
+})
+
 utilsV1.post('/etrs2wgs', (req: Request, res: Response) => {
     const validation = etrs2wgsSchema.validate(req.body)
 
@@ -53,6 +71,14 @@ utilsV1.post('/etrs2wgs', (req: Request, res: Response) => {
     res.status(200).json({
         latitude: WGS84[0],
         longitude: WGS84[1]
+    })
+})
+
+utilsV1.get('/etrs2bbox', (req: Request, res: Response) => {
+    res.json({
+        message: 'Convert coordinates from ETRS89 to ETRS89 bounding box',
+        inptus: etrs2wgsSchema.describe(),
+        output: {left:'-easting', bottom:'-northing', right:'+easting', top:'+northing'}
     })
 })
 
