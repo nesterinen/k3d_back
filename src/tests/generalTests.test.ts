@@ -5,7 +5,7 @@ import { app } from '../index'
 
 const appRequest = supertest(app)
 
-describe('API utils test', () => { 
+describe('API util tests', () => { 
     test('GET /', async () => {
         await appRequest
             .get('/')
@@ -43,8 +43,9 @@ describe('API utils test', () => {
     })
 })
 
+
 import { WGS84toETRS89, bboxFromETRS89, ETRS89toWGS84 } from '../utils/projections'
-describe('local utils test', () => {
+describe('local util tests', () => {
     test('WGS to ETRS', () => {
         const result = WGS84toETRS89(62.600277963310006, 29.763860324163183)
         const correct = [641875.5789488759, 6944093.518024502]
@@ -65,4 +66,19 @@ describe('local utils test', () => {
 
         assert.deepEqual(result, correct)
     })
+})
+
+
+describe('API MaanMittausLaitos request tests', () => {
+    test('POST /api/v1/korkeusmalli2m', async () => {
+        const res = await appRequest
+            .post('/api/v1/korkeusmalli2m')
+            .send({ latitude: 62.600277963310006, longitude: 29.763860324163183 })
+            .expect(200)
+
+        
+        assert(res.type, 'image/tiff')
+        // res.body size is 3507832 @ { latitude: 62.600277963310006, longitude: 29.763860324163183 }
+        assert.strictEqual(Buffer.byteLength(JSON.stringify(res.body)), 3507832)
+    })  
 })
