@@ -80,5 +80,25 @@ describe('API MaanMittausLaitos request tests', () => {
         assert(res.type, 'image/tiff')
         // res.body size is 3507832 @ { latitude: 62.600277963310006, longitude: 29.763860324163183 }
         assert.strictEqual(Buffer.byteLength(JSON.stringify(res.body)), 3507832)
-    })  
+    })
+
+    test('POST /api/v1/kiintopisteet', async () => {
+        const res = await appRequest
+            .post('/api/v1/kiintopisteet')
+            .send({ latitude: 62.600277963310006, longitude: 29.763860324163183, size: 500 })
+            .expect(200)
+
+        
+        assert(res.type, 'application/x-sqlite3')
+    })
+
+    test('POST /api/v1/maastotietokanta', async () => {
+        const res = await appRequest
+            .post('/api/v1/maastotietokanta')
+            .send({ latitude: 62.600277963310006, longitude: 29.763860324163183, size: 500, themeInput: "hallinnollinen_jaotus"})
+            .expect(200)
+
+        
+        assert(res.type, 'application/x-sqlite3')
+    })
 })

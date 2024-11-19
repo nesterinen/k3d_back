@@ -40,11 +40,16 @@ const processPolling = async (url: string, api_key: string, retries = 15, timeou
     }
 
     return new Promise((resolve, reject) => {
+        let pollingComplete = false
+
         function poller(){
             getProcess()
                 .then((res) => {
-                    console.log(`status: ${res.data.status}, retries left: ${retries}`)
-                    if ( res.data.status == 'successful') resolve(res.data)
+                    console.log(`status: ${res.data.status}, retries left: ${retries}, url: ${url}`)
+                    if ( res.data.status == 'successful'){
+                        resolve(res.data)
+                        pollingComplete = true
+                    }
                 })
                 .then(() => {    
                     if (retries <= 1) {
@@ -53,7 +58,9 @@ const processPolling = async (url: string, api_key: string, retries = 15, timeou
                     
                     wait(timeout).then(() => {
                         retries--;
-                        poller()
+                        if(pollingComplete === false){
+                            poller()
+                        }
                     })
                 })
                 .catch((error) => {
