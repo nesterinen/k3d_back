@@ -50,9 +50,15 @@ const processPolling = async (url: string, api_key: string, retries = 15, timeou
                         resolve(res.data)
                         pollingComplete = true
                     }
+
+                    if (res.data.status == 'failed') {
+                        pollingComplete = true
+                        reject({message: 'Maanmittauslaitos error: Status failed.'})
+                    }
                 })
                 .then(() => {    
                     if (retries <= 1) {
+                        pollingComplete = true
                         reject({message: `Request timeout after ${retries} retries`})
                     }
                     
