@@ -43,25 +43,28 @@ const processPolling = async (url: string, api_key: string, retries = 15, timeou
         let pollingComplete = false
 
         function poller(){
+            if (retries <= 1 || pollingComplete === true) {
+                pollingComplete = true
+                reject({message: `Request timeout after ${retries} retries`})
+                return
+            }
+
             getProcess()
                 .then((res) => {
                     console.log(`status: ${res.data.status}, retries left: ${retries}, url: ${url}`)
                     if ( res.data.status == 'successful'){
-                        resolve(res.data)
                         pollingComplete = true
+                        resolve(res.data)
                     }
 
-                    if (res.data.status == 'failed') {
+                    if (res.data.status == 'failed' || res.data.status == 'dismissed') {
                         pollingComplete = true
                         reject({message: 'Maanmittauslaitos error: Status failed.'})
                     }
                 })
                 .then(() => {    
-                    if (retries <= 1) {
-                        pollingComplete = true
-                        reject({message: `Request timeout after ${retries} retries`})
-                    }
-                    
+                    if (pollingComplete === true) return
+
                     wait(timeout).then(() => {
                         retries--;
                         if(pollingComplete === false){
