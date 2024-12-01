@@ -5,7 +5,7 @@ const mainPage = Router()
 mainPage.get('/', (req: Request, res: Response) => {
     res.json({
         message: 'Welcome to Kartta3d backend.',
-        paths: ['/api/v1', '/utils/v1']
+        paths: ['/api/v1', '/utils/v1', '/wcs/v1']
     })
 })
 
