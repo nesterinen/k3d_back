@@ -69,6 +69,45 @@ describe('local util tests', () => {
 })
 
 
+describe('API MaanMittausLaitos WCS tests', () => {
+    test('POST /wcs/v1/korkeusmalli_2m', async () => {
+        const res = await appRequest
+            .post('/wcs/v1/korkeusmalli_2m')
+            .send({ latitude: 62.600277963310006, longitude: 29.763860324163183 })
+            .expect(200)
+
+        
+        assert(res.type, 'image/tiff')
+        // res.body size is 3507831 @ { latitude: 62.600277963310006, longitude: 29.763860324163183 }
+        assert.strictEqual(Buffer.byteLength(JSON.stringify(res.body)), 3507831)
+    })
+
+    test('POST /wcs/v1/ortokuva_vari', async () => {
+        const res = await appRequest
+            .post('/wcs/v1/ortokuva_vari')
+            .send({ latitude: 62.600277963310006, longitude: 29.763860324163183 })
+            .expect(200)
+
+        
+        assert(res.type, 'image/tiff')
+        // res.body size is 3507831 @ { latitude: 62.600277963310006, longitude: 29.763860324163183 }
+        assert.strictEqual(Buffer.byteLength(JSON.stringify(res.body)), 2738596)
+    })
+
+    test('POST /wcs/v1/ortokuva_vaaravari', async () => {
+        const res = await appRequest
+            .post('/wcs/v1/ortokuva_vaaravari')
+            .send({ latitude: 62.600277963310006, longitude: 29.763860324163183 })
+            .expect(200)
+
+        
+        assert(res.type, 'image/tiff')
+        // res.body size is 3507831 @ { latitude: 62.600277963310006, longitude: 29.763860324163183 }
+        assert.strictEqual(Buffer.byteLength(JSON.stringify(res.body)), 2641629)
+    })
+})
+
+
 describe('API MaanMittausLaitos request tests', () => {
     test('POST /api/v1/korkeusmalli2m', async () => {
         const res = await appRequest
