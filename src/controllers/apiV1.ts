@@ -13,7 +13,7 @@ interface requestSchemaProps{
 const requestSchema = Joi.object<requestSchemaProps>({
     latitude: Joi.number().min(-90).max(90).required(),
     longitude: Joi.number().min(-180).max(180).required(),
-    size: Joi.number().min(500).max(5000),
+    size: Joi.number().min(500).max(2500),
 })
 const extendedSchema = requestSchema.keys({
     themeInput: Joi.string().valid(
