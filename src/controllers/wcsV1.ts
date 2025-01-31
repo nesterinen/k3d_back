@@ -48,6 +48,7 @@ const getWCS = async (bbox: number[], coverage: coverageType)=> {
 const wcsBBOXrequest = async (req: Request, res: Response, coverage: coverageType) => {
     const validation = requestSchema.validate(req.body)
     if (validation.error) {
+        console.log('WHAT')
         return res.status(400).json({'Validation error:': validation.error.details})
     }
 
@@ -87,6 +88,12 @@ wcsV1.post('/ortokuva_vaaravari', (req: Request, res: Response) => {
 })
 
 // Description responses
+
+wcsV1.get('/', (req: Request, res: Response) => {
+    res.json({
+        paths: ['/korkeusmalli_2m', '/ortokuva_vari', '/ortokuva_vaaravari']
+    })
+})
 
 wcsV1.get('/korkeusmalli_2m', (req: Request, res: Response) => {
     res.json({
